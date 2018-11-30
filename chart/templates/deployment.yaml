@@ -1,0 +1,47 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "bitcoind.fullname" . }}
+  labels:
+    app: {{ template "bitcoind.name" . }}
+    chart: {{ template "bitcoind.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "bitcoind.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "bitcoind.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ template "bitcoind.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          resources:
+  {{ toYaml .Values.resources | indent 10 }}
+          ports:
+            - name: rpc
+              containerPort: {{ .Values.service.rpcPort }}
+            - name: insight
+              containerPort: {{ .Values.service.insightPort }}
+            - name: p2p
+              containerPort: {{ .Values.service.p2pPort }}
+            - name: testnet
+              containerPort: {{ .Values.service.testnetPort }}
+            - name: testnetp2pport
+              containerPort: {{ .Values.service.testnetP2pPort }}
+          env:
+          - name: NETWORK
+            value: {{ .Values.NETWORK }}
+          volumeMounts:
+            - name: {{ .Values.data.volumeName }}
+              mountPath: /root/bitcoin-node/data
+      volumes:
+        - name: {{ .Values.data.volumeName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.data.volumeName }}-claim

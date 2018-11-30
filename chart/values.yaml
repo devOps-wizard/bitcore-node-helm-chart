@@ -1,0 +1,40 @@
+# Default values for bitcoind.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: devopsvvizard/bitcore
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  insightPort: 3001
+  insightExternalPort: 80
+  rpcPort: 3232
+  p2pPort: 8333
+  testnetPort: 6667
+  testnetP2pPort: 18333
+
+data:
+  volumeSize: 250Gi
+  gcePersistentDiskName: bitcore-testnet
+  volumeName: bitcore-testnet
+
+NETWORK: testnet
+resources: {}
+ingress:
+  enabled: false
+#  requests:
+#    memory: 512Mi
+#    cpu: 300m
+
+# Custom bitcoind configuration file used to override default bitcoind settings
+configurationFile:
+  bitcoin.conf: |-
+    server=1
+    testnet=1
+    printtoconsole=1
+    rpcuser=rpcuser
+    rpcpassword=rpcpassword
+    whitelist=127.0.0.1
